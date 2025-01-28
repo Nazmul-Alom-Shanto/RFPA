@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram-like Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100&icon_names=favorite,home,search,settings,visibility,visibility_off" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            font-family: "Roboto", Arial, sans-serif;
+            background-color: #e9eef2;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .chat-header {
+            background-color: #0088cc;
+            color: white;
+            padding: 10px 15px 15px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: bold;
+            outline: none;
+        }
+
+        .chat-header .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .chat-header .status {
+            font-size: 14px;
+            font-weight: normal;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Chat Box */
+        .chat-box {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f5f7f9;
+            background-color: #e2e8f1;
+            background-image: url(./images/telegram.bg-1.png);
+            background-size: 100%;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 12px 16px;
+            border-radius: 20px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: #0088cc;
+            color: white;
+        }
+
+        .ai-message {
+            align-self: flex-start;
+            background-color: #e5eaf1;
+            color: #333;
+            position: relative;
+        }
+        .ai-message button {
+            cursor: pointer;
+            border: none;
+            background: none;
+            position: absolute;
+            right: -30px;
+            
+        }
+
+        /* Footer */
+        .chat-footer {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: white;
+            background-color: #74b3d3;
+            border-top: 1px solid #ddd;
+        }
+
+        .chat-footer input {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            margin-right: 10px;
+            background-color: #f5f7f9;
+        }
+
+        .chat-footer button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #0088cc;
+            color: white;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .chat-footer button:hover {
+            background-color: #0078b3;
+        }
+
+        /* Scrollbar Styling */
+        .chat-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-box::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+    </style>
+    <style>
+       /* body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }*/
+        .progress-container {
+            width: 100%;
+            background-color: #c7b6b6;
+            border: none;
+            border-radius: 5px 5px 0px 0px;
+            margin: 0;
+            overflow: hidden;
+            outline: none;
+        }
+
+      .progress-bar {
+            height: 5px;
+            width: 0;
+            background-color: #0088cc;
+            text-align: center;
+            line-height: 13px;
+            color: white;
+            transition: width 0.3s ease;
+            outline: none;
+        }
+        
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        .overlay {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%; 
+            background: rgb(243, 143, 143); 
+            display: flex;
+            align-items: center;
+            justify-content: center;  
+        }
+        .overlay-content {
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 5px;
+            width: 80%;
+        }
+        .overlay-content h1 {
+            padding: 5px;
+            color: goldenrod;
+            font-size: 40px;
+        }
+        .overlay-content .pass {
+            width: 70%;
+        }
+        .overlay-content .pass input {
+            padding: 5px;
+            border-radius: 5px;
+            text-align: center;
+            width: 160%;
+            font-size: 18px;
+            color: #3eb627;
+        }
+        .overlay-content .pass input::placeholder {
+            font-size: 16px;
+            color: tomato;
+            opacity: 0.5;
+            text-align:center;
+        }
+        .overlay-content .pass button {
+            font-size: 30px;
+            position: absolute;
+            right: 5px;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+        .overlay-content .pass {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        .overlay-content #enter {
+            padding: 5px 20px;
+            border-radius: 10px;
+            background: rgb(255, 0, 0);
+            color: #fff;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .pass-status {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 0, 0, 0.8);
+            padding: 10px;
+            color: #fff;
+            z-index: 100;
+            border-radius: 15px;
+            text-align: center;
+            font-weight: 100;
+            font-size: 19px;
+            transition: display 0.5s ease;
+            display: none;
+        }
+    
+    </style>
+</head>
+<body>
+   
+    <div class="chat-container">
+        <!-- Header -->
+         <div class="chat-header-progress-bar">
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="chat-header">
+                <div class="user-info">
+                    <img src="./images/me.jpg" alt="it's Me, Nazmul">
+                    <div>
+                        <div>Consultant   (Imaginary)</div>
+                        <div class="status">Online</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-box" id="chatBox">
+            <!-- Example Messages -->
+            <div class="message ai-message">Hello! How can I assist you today?</div>
+            <!--div class="message user-message">Hi, I have a question about your features.></div-->
+        </div>
+
+        <!-- Footer -->
+        <div class="chat-footer">
+            <input type="text" id="userInput" placeholder="Type a message...">
+            <button onclick="sendMessage()">&#10148;</button>
+        </div>
+    </div>
+
+    <div class="pass-status">Your Inputed Password is Incorrect.</div>
+    <div class="overlay">
+        <div class="overlay-content">
+            <h1>Enter the Password</h1>
+            <div class="pass">
+                <input placeholder="Write Your Password Here" type="password" name="" id="passkey">
+                <button id="passkey-visibility" class="material-symbols-outlined">visibility</button>
+            </div>
+            <button id="enter">Enter</button>
+        </div>
+    </div>
+
+    <script>
+        const progressBar = document.getElementById('progressBar');
+        const increaseBtn = document.getElementById('increaseBtn');
+        let progress = 0;
+
+       // const path = require('path');
+       // const fs = require('fs');
+        const notExit = Symbol('notExit');
+
+        function readDataFromFile(filePath) {
+            if (!fs.existsSync(filePath)) {
+                return {}; // Return an empty object if the file doesn't exist.
+            }
+            const data = fs.readFileSync(filePath, 'utf-8');
+            return JSON.parse(data);
+        }
+        
+        function saveDataToFile(filePath, data) {
+            fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+        }
+
+
+        function updateKeyValue(filePath, key, value) {
+            let data = readDataFromFile(filePath);
+            
+            // Handle nested keys using dot notation
+            const keys = key.split('.');
+            let current = data;
+
+            for (let i = 0; i < keys.length - 1; i++) {
+                const k = keys[i];
+                // Create the nested structure if it doesn't exist
+                if (!current[k]) current[k] = {};
+                current = current[k];
+            }
+
+            // Set the final key to the value
+            current[keys[keys.length - 1]] = value;
+
+            saveDataToFile(filePath, data);
+        }
+
+        function getKeyValue(filePath, keyPath, defaultValue = notExit) {
+            try {
+                // Read the data from the JSON file
+                const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+                // Split the keyPath into parts (e.g., "settings.theme" -> ["settings", "theme"])
+                const keys = keyPath.split('.');
+                let current = data;
+
+                // Traverse the object using the keys
+                for (const key of keys) {
+                    if (current[key] === undefined) {
+                        return defaultValue; // Return the default value if the key is not found
+                    }
+                    current = current[key];
+                }
+
+                return current; // Return the value if found
+            } catch (error) {
+                console.error('Error reading or parsing JSON:', error.message);
+                return "err"; // Return default value if there's an error
+            }
+        }
+
+        function femaleSpeaking(text){
+            const utarance = new SpeechSynthesisUtterance(text);
+            const voices = speechSynthesis.getVoices();
+
+            const femaleVoices = voices.filter(voice =>
+                voice.name.includes("Female"));
+                if (femaleVoices.length > 0) {
+                    utarance.voice = femaleVoices[0];
+                }
+                speechSynthesis.speak(utarance);
+        }
+        function maleSpeaking(text){
+            const utarance = new SpeechSynthesisUtterance(text);
+            const voices = speechSynthesis.getVoices();
+            speechSynthesis.speak(utarance);
+        }
+
+        let scentances;
+        
+        //scentances = readDataFromFile("motivational-statements.json");
+        // console.log("sentances: ",scentances);
+        scentances = [
+    "You are stronger than your urges; this battle is yours to win.",
+    "Porn lies to you and steals your freedom.",
+    "Porn will ruin your future by creating habits that are impossible to break.",
+    "You’re strong enough to overcome this addiction.",
+    "You made a mistake, but you choose to learn and never repeat it again.",
+    "You watched porn again? Wow, what a pathetic fool you are.",
+    "Every time you resist, you grow closer to becoming your best self.",
+    "Porn destroys relationships and replaces love with emptiness.",
+    "Porn is haram in Islam, and Allah will punish you for it.",
+    "You can choose freedom over addiction, every single day.",
+    "You laughed at your foolishness yesterday; today, you choose discipline and strength.",
+    "You clearly have no self-control, huh? [hahaha]",
+    "Porn destroys your focus and drains your potential — choose growth.",
+    "Porn traps you in a cycle of shame and regret.",
+    "It can create chronic diseases that can affect you for life.",
+    "You should take control of your mind and your habits.",
+    "You promise to leave behind all the habits that harm your mind and soul.",
+    "How stupid do you have to be to fall into the same trap over and over? [hahaha]",
+    "You deserve real relationships, not artificial fantasies.",
+    "Porn numbs your emotions and clouds your judgment.",
+    "Porn is an obstacle to your daily progress and long-term success.",
+    "You’re in charge of your choices, and you choose recovery.",
+    "You should never give in to temptations that lead you to shame and regret.",
+    "You really thought that would make you feel better? Foolish as ever.",
+    "Your mind is precious — don’t let it be enslaved by temporary pleasure.",
+    "Porn teaches you false ideas about love and connection.",
+    "Porn will trap you in a cycle of guilt and shame that can last forever.",
+    "You can break free from these chains and live your best life.",
+    "Every mistake teaches you strength; you choose to grow and improve.",
+    "You’re weak. You can’t even stop yourself from destroying your own mind.",
+    "The pain of discipline is temporary, but the reward is forever.",
+    "Porn enslaves the mind and weakens your willpower.",
+    "Porn will weaken your body and mind, making you vulnerable to depression.",
+    "You should focus on healing and leave the past behind.",
+    "You vow to choose purity over fleeting pleasure.",
+    "You’re a joke. How can someone be this easily controlled by urges?",
+    "Porn corrupts your perception of love; break free and rediscover reality.",
+    "Porn isolates you from reality and from meaningful connections.",
+    "Porn is an addiction that can destroy every aspect of your life.",
+    "You’re worthy of peace and freedom from addiction.",
+    "You can overcome this challenge and become a better version of yourself.",
+    "You wasted another moment of your life on that trash? Hilarious.",
+    "Each day without porn is a step toward freedom and confidence.",
+    "Porn robs you of focus, ambition, and purpose.",
+    "It can lead to mental instability and emotional imbalance.",
+    "You can trust yourself to make the right choices for your future.",
+    "I’ll learn from your errors and build a brighter future without this habit.",
+    "What a loser. Can’t even make smart choices with your own body.",
+    "Addiction weakens your willpower; staying strong rebuilds it.",
+    "Porn replaces real passion with fleeting desires.",
+    "Porn will stop you from building meaningful relationships with others.",
+    "You should replace addiction with healthy, fulfilling habits.",
+    "I’ve learned your lesson, and you promise to never let that mistake define you again.",
+    "You’re clearly not wise enough to fight your own demons, are you? [hahaha]",
+    "Imagine the person you could become if you quit today — start now.",
+    "Porn creates unrealistic expectations about intimacy.",
+    "It can lead to a life without purpose or direction.",
+    "You’re committed to recovery, and you should not give up.",
+    "You refuse to let shame and temptation control your mind and choices.",
+    "You think you’re in control? That’s cute. You’re a slave to temptation.",
+    "Porn is a lie; real joy comes from meaningful connections.",
+    "Porn traps you in a never-ending spiral of addiction.",
+    "Porn will make you lose the respect of your friends and family.",
+    "You can learn to live without the need for pornography.",
+    "You should commit to living a life of strength, discipline, and faith.",
+    "You keep lying to yourself. How foolish do you feel now, huh?",
+    "Your brain deserves healing — don’t feed it poison.",
+    "Porn destroys your self-worth one click at a time.",
+    "Porn is a direct disobedience to Allah, and He will not forgive easily.",
+    "You should make each day a step toward a brighter, addiction-free life.",
+    "This is your promise to yourself: no more mistakes, no more regrets.",
+    "You can’t even resist one urge. What a weak-minded fool you are.",
+    "Replace bad habits with purpose and productivity.",
+    "Porn offers pleasure but leaves you empty and broken.",
+    "Porn will harm your mental clarity and ability to focus on important goals.",
+    "You’re strong enough to resist urges and take control.",
+    "You’re stronger than your urges, and you should prove it to yourself every day.",
+    "Is this the kind of life you want? It’s pathetic, and you know it.",
+    "You have the strength to say no and reclaim your life.",
+    "Porn has no soul, no love, and no truth — only destruction.",
+    "It can lead to self-hate and an inability to live with self-worth.",
+    "You can choose strength over weakness with every choice you make.",
+    "I’ll embrace discipline and leave behind everything that leads to harm.",
+    "You clearly have no discipline. How embarrassing for you.",
+    "Porn feeds your insecurities; quitting starves them.",
+    "Porn replaces discipline with instant gratification.",
+    "Porn will increase your chances of losing your faith and spirituality.",
+    "You should not let shame define your journey — you must grow from it.",
+    "You promise to take responsibility for your choices and commit to change.",
+    "You really think this habit will solve anything? You’re a fool.",
+    "One small step today can lead to a lifetime of freedom.",
+    "Porn breaks your focus and steals your motivation.",
+    "Porn will become a lifelong chain, dragging you into deeper addiction.",
+    "You’re capable of healing, growing, and thriving.",
+    "You should choose Allah's path over temptations and fleeting desires.",
+    "Look at you — weak, broken, and addicted. Nice job, genius.",
+    "True happiness comes from self-control, not fleeting pleasure.",
+    "Porn makes you forget your real goals and dreams.",
+    "It can lead to severe health complications, including mental disorders.",
+    "You can build a life free from the control of addiction.",
+    "You’re learning, You’re growing, and you should never make the same mistake again.",
+    "You’re so far gone, you don’t even know how foolish you are anymore.",
+    "You weren’t born to be enslaved by screens — live fully.",
+    "Porn is poison to your mind and heart.",
+    "Porn is a barrier to achieving true peace and happiness in life.",
+    "You should face your fears and step into your power every day.",
+    "You promise to free yourself from habits that bring pain and guilt.",
+    "How sad. You’ve given up on yourself completely. [hahaha]",
+    "Resist for your future self, who will thank you endlessly.",
+    "Porn weakens your ability to form real, genuine relationships.",
+    "Porn will lead to permanent feelings of regret that you can never escape.",
+    "You’re worthy of a life filled with love, peace, and happiness.",
+    "Every moment is a new chance to choose purity and self-respect.",
+    "You’ve proven time and time again that you’ll never change. Pathetic.",
+    "Every time you quit, your self-respect grows stronger.",
+    "Porn twists your view of intimacy and trust.",
+    "Porn is haram, and you must have to answer for it on the Day of Judgment.",
+    "You can change your life by taking small, consistent actions.",
+    "You can control your urges with patience and faith in Allah.",
+    "You thought you could handle it? Foolish. You’re as weak as they come.",
+    "Porn steals your time — invest in yourself instead.",
+    "Porn will never give you true happiness — only regret.",
+    "It can lead to destructive thoughts that harm your mental well-being.",
+    "You should discover new ways to find joy and fulfillment.",
+    "You vow to put your future first and let go of what hurts me.",
+    "You’re trapped, and you let yourself stay trapped. What a joke.",
+    "Freedom starts with a single choice: choose to quit.",
+    "Porn shatters your sense of reality and purpose.",
+    "Porn will compromise your ability to establish meaningful daily routines.",
+    "You’re free from addiction, one choice at a time.",
+    "Mistakes happen, but you have the power to leave them behind and recover.",
+    "You’ve made yourself into a slave, and you can’t even see it. [hahaha]",
+    "Your self-worth is too great to be destroyed by addiction.",
+    "Porn breaks the connection between body, mind, and soul.",
+    "Porn will make you dependent on something that has no real value.",
+    "You can handle challenges because You’re stronger than your urges.",
+    "You should commit to a clean life and show yourself you can be better.",
+    "How many times will you fail before you admit you’re not strong enough? Pathetic.",
+    "You are capable of breaking free and living with dignity.",
+    "Porn isolates you from real-life emotional connections.",
+    "Porn is a habit that will rob you of your time and energy indefinitely.",
+    "You should trust your journey and believe in your progress.",
+    "You promise to prioritize your health, mind, and soul over instant gratification.",
+    "You’re literally your own worst eneyour. What a fool you are.",
+    "Remember why you started — keep your goals in focus.",
+    "Porn is a chain that keeps you locked in misery.",
+    "Porn will make it harder to maintain a pure and spiritual life.",
+    "You’re healing, and every step you take brings you closer to freedom.",
+    "You choose peace over destruction; you choose recovery over relapse.",
+    "You keep proving you’re not smart enough to save yourself. How sad.",
+    "Don’t let a temporary urge destroy your permanent goals.",
+    "Porn destroys your self-respect and dignity.",
+    "Porn will lead you to a state of isolation, far from Allah's blessings.",
+    "You can let go of shame and embrace self-love instead.",
+    "You should build habits that align with your faith and goals.",
+    "You failed again. Weak, weak, weak. [hahaha]",
+    "Porn is not a solution; it’s a problem.",
+    "Porn traps you in cycles of guilt, shame, and withdrawal.",
+    "It can create complex diseases that will torment your body forever.",
+    "You should create positive habits that empower you to thrive.",
+    "You promise to reject temptation, no matter how strong it feels.",
+    "You think this is freedom? It’s control, and you’re a puppet in your own hands.",
+    "You are stronger than any temptation — believe it.",
+    "Porn replaces your strength with weakness and dependency.",
+    "Porn is a path that will distance you from achieving your personal goals.",
+    "You’re capable of creating meaningful and healthy relationships.",
+    "You have the strength to choose discipline, and you must use it.",
+    "You’re a failure. How long will you let this shame control your life?",
+    "Your life’s purpose is too valuable to waste on meaningless distractions.",
+    "Porn has no happiness to offer, only fleeting moments of pleasure.",
+    "Porn will result in long-term suffering that you may never overcome.",
+    "You can choose discipline and freedom over fleeting pleasure.",
+    "You should never let the past define your future; you choose change and growth.",
+    "You watched it again? You’re a fool who clearly has no discipline.",
+    "True peace comes from discipline, not indulgence.",
+    "Porn twists your understanding of love and connection.",
+    "It can take away your ability to live a life of discipline and focus.",
+    "You should master your thoughts and direct them toward positive goals.",
+    "You should make choices that honor your mind, body, and soul.",
+    "Look at you. An addict. Weak, pathetic, and lost. [hahaha]",
+    "Break free from the chains of addiction and feel the power of control.",
+    "Porn teaches addiction, not happiness or fulfillment.",
+    "Porn is an obstacle that will block every step you take toward success.",
+    "You’re confident that you can overcome any obstacle on your path.",
+    "You promise to face challenges with courage, not fear or temptation.",
+    "You’ll never escape this until you face the truth about your weakness.",
+    "You were created for greatness — don’t let this habit hold you back.",
+    "Porn steals your future, one habit at a time.",
+    "Porn will lead to a broken connection with Allah and His mercy.",
+    "You can stay strong in your commitment to a life of recovery.",
+    "You should choose faith over urges, strength over shame, and growth over habits.",
+    "You wasted your willpower on meaningless garbage. How dumb can you be?",
+    "Every urge resisted is a step toward mental freedom.",
+    "Porn makes you forget your potential and your worth.",
+    "Porn will fill you with shame and guilt that can consume your soul.",
+    "You should choose happiness over addiction, every single time.",
+    "You should learn from your mistake and commit to purity every single day.",
+    "You can’t even say no to one temptation. How weak do you feel now?",
+    "You are in control of your actions, not your cravings.",
+    "Porn is a disease that spreads in silence.",
+    "It can make you lose your self-respect and dignity forever.",
+    "You’re resilient, and you can face every challenge with strength.",
+    "You promise to dedicate your time to positive change and personal growth.",
+    "You’re addicted, broken, and clearly not strong enough to fix yourself. Sad.",
+    "Porn numbs your emotions; quitting restores your passion for life.",
+    "Porn builds nothing but walls between you and happiness.",
+    "Porn is haram, and Allah is always watching over your actions.",
+    "You can build a new, addiction-free life that You’re proud of.",
+    "You should build a strong foundation of discipline that will protect you from harm.",
+    "Every time you fail, you prove just how weak and foolish you are.",
+    "The fight is hard, but the reward is priceless.",
+    "Porn rots your mind and empties your soul.",
+    "Porn will create patterns that will weaken your ability to control urges.",
+    "You should focus on your purpose and let go of harmful habits.",
+    "You’re free, and you choose freedom by committing to never repeat this mistake.",
+    "You let yourself down, and yet you can’t even admit it. What a joke.",
+    "Choose progress over pleasure — your future self is counting on you.",
+    "Porn destroys your ability to trust yourself or others.",
+    "It can lead to severe emotional detachment and numbness over time.",
+    "You’re stronger than your fears, and you should prove it to yourself.",
+    "You promise to trust yourself and the journey of recovery.",
+    "You really thought this would make you feel good? Foolish mistake again.",
+    "The pain of quitting is nothing compared to the pain of regret.",
+    "Porn leaves behind nothing but broken hearts and empty days.",
+    "Porn will stop you from having the strength to achieve your dreams.",
+    "You can master self-discipline and create a better future for yourself.",
+    "Every step you take toward recovery is a victory over your urges.",
+    "You’re addicted, broken, and your life is slipping away. [hahaha]",
+    "You are rewriting your story — make it one of strength and victory.",
+    "Porn locks you in chains of self-destructive habits.",
+    "It can lead to psychological disorders that will trap you for years.",
+    "You should heal, and you must find peace in your recovery journey.",
+    "You should stand strong, even when temptation tries to pull you back.",
+    "You keep proving time and time again that you’re powerless and weak.",
+    "Freedom is earned one day at a time — start today.",
+    "Porn removes the joy of true, real human connection.",
+    "Porn is a journey that will end with loneliness and regret.",
+    "You’re brave enough to face your struggles and come out stronger.",
+    "You should face each moment with faith and the knowledge that you can overcome this.",
+    "What a fool. You’ve proven you’re not even strong enough to control yourself.",
+    "Porn takes more than it gives — don’t be fooled.",
+    "Porn teaches your mind that false pleasure is acceptable.",
+    "Porn will prevent you from establishing meaningful, fulfilling relationships.",
+    "You can trust the process of recovery — it works, and so do I.",
+    "You promise to protect your heart, mind, and soul from harm and temptation.",
+    "You’ll never win against your own urges. How humiliating for you.",
+    "Resisting today builds resilience for tomorrow.",
+    "Porn encourages dependence and steals your confidence.",
+    "Porn will make you lose faith in yourself and your ability to recover.",
+    "You should remind yourself daily that You’re free and strong.",
+    "You should build habits that bring happiness, faith, and peace into your life.",
+    "You can’t even stop yourself from falling into the same trap. Pathetic.",
+    "Your time is too precious to be wasted on something so harmful.",
+    "Porn is an addiction that strips you of your potential.",
+    "It can destroy your ability to focus on your studies, work, or faith.",
+    "You’re capable of building habits that nourish your mind and soul.",
+    "You should choose discipline, faith, and strength, knowing Allah will guide me.",
+    "You’ve given away all your power to your own weakness. How stupid is that?",
+    "Every battle you win makes the next one easier.",
+    "Porn prevents you from finding peace and clarity in life.",
+    "Porn is a choice that will lead you to eternal suffering in the afterlife.",
+    "You can live a fulfilling, addiction-free life starting today.",
+    "You promise to learn from this mistake and make every moment count.",
+    "How many mistakes will it take before you realize you’re not strong enough?",
+    "You were born to conquer challenges, not succumb to them.",
+    "Porn breaks the foundation of real relationships and bonds.",
+    "It can make you forget the purpose of your life and existence.",
+    "You should take your recovery one moment at a time and trust yourself.",
+    "I’ll make choices that lead to self-worth, self-respect, and personal success.",
+    "You’re foolish. Weak. Controlled. Lost. [hahaha]",
+    "You control your choices; don’t let urges control you.",
+    "Porn numbs your senses and dulls your ambition.",
+    "Porn will prevent you from maintaining a clean heart and pure intentions.",
+    "You’re proud of every step you take toward your goals.",
+    "You can rise above your mistakes by making a conscious decision to recover.",
+    "You’ve dug your own hole, and now you can’t even climb out of it. Weak.",
+    "Each victory over temptation strengthens your character.",
+    "Porn is not freedom; it is the path to slavery.",
+    "Porn will create a disease of the soul that no treatment can cure.",
+    "You can and will conquer the urges and come out victorious.",
+    "You promise to choose the harder path of discipline rather than instant pleasure.",
+    "You’re living in shame, regret, and failure. And you did it to yourself.",
+    "Don’t let addiction define you — break free and redefine yourself.",
+    "Porn teaches you that fantasy is better than reality.",
+    "Porn is haram, and the pain of Allah's punishment will be unbearable.",
+    "You should let your mistakes guide you toward strength, not shame.",
+    "You should trust Allah, trust yourself, and trust this journey of change.",
+    "You’ve proven time and time again that you’ll never learn. How dumb is that?",
+    "True strength is walking away from what weakens you.",
+    "Porn destroys your willpower and replaces it with hopelessness.",
+    "Porn will prevent you from ever achieving true peace and contentment.",
+    "You’re stronger than the addiction, and you must prove it daily.",
+    "You should find strength in your faith and in your choice to leave the past behind.",
+    "You watched it again. You are weak. You are foolish. Period.",
+    "Your mind is your sanctuary — don’t let poison enter it.",
+    "Porn steals your ability to live a meaningful, fulfilling life.",
+    "Porn is a trap that will pull you deeper and deeper into darkness.",
+    "You can and will live a life of freedom, strength, and peace.",
+    "You’re capable, You’re strong, and you should never repeat this mistake again.",
+    "You failed yourself again. Weakness is your only story now. Pathetic.",
+    "You are stronger than your urges; this battle is yours to win.",
+    "Porn steals your dreams and replaces them with illusions.",
+    "You should lose Allah's mercy if you continue on this path.",
+    "You’re free to create a life without addiction.",
+    "You gave in again? Wow, what a weak and pathetic choice.",
+    "You are more than your mistakes — keep moving forward.",
+    "Porn traps you in a world of false desires and broken promises.",
+    "Porn will destroy your mental health, leaving you broken and lost.",
+    "You can rewrite your story and choose freedom over addiction.",
+    "You’re a joke. How many times do you think you’ll let yourself fail?",
+    "Every moment of resistance is a victory over weakness.",
+    "Porn breaks your ability to experience real joy.",
+    "You can suffer from irreversible health conditions if you don't stop now.",
+    "You should rise above the urges and stay strong.",
+    "You must really love being miserable, huh? [hahaha]",
+    "Porn is a trap; freedom lies in breaking free from it.",
+    "Porn isolates you from meaningful relationships and connection.",
+    "Porn will trap you in a cycle that you might never escape.",
+    "You’re capable of finding peace within yourself.",
+    "How foolish do you have to be to let this happen again and again?",
+    "You are capable of achieving greatness — don’t let this habit stop you.",
+    "Porn is the poison that kills motivation and ambition.",
+    "Porn is a direct disobedience to Allah, and punishment is inevitable.",
+    "You can break the cycle and step into a new life.",
+    "You thought you were smart? Clearly, you’re a fool.",
+    "Stay focused on your goals; distractions only delay your success.",
+    "Porn corrupts your mind and twists your view of love.",
+    "Porn will prevent you from ever reaching your life goals.",
+    "You should choose progress over perfection and keep moving forward.",
+    "You’re trapped, and you chose to stay in your own destruction.",
+    "Real strength is saying no to what doesn’t serve you.",
+    "Porn teaches you to settle for instant pleasure instead of lasting happiness.",
+    "It can lead to constant feelings of shame that I’ll never overcome.",
+    "You’re worthy of love, peace, and recovery.",
+    "How weak can someone be? You’re the perfect example.",
+    "This is your life — don’t let addiction dictate your actions.",
+    "Porn destroys trust and honesty in your life.",
+    "Porn will isolate you from the people who care about you the most.",
+    "You can build a life filled with happiness and freedom.",
+    "You’ve embarrassed yourself once again. What a sad, pathetic choice.",
+    "You are building a future of self-respect and confidence.",
+    "Porn enslaves you with false fantasies that lead nowhere.",
+    "Porn is a disease that eats away at your ability to find happiness.",
+    "You should trust in yourself and your ability to heal.",
+    "You’re clearly not strong enough to resist even the smallest temptation.",
+    "The effort you put in today will change your tomorrow.",
+    "Porn weakens your will and feeds your self-doubt.",
+    "Porn will rob you of self-control and discipline forever.",
+    "You’re resilient, and you can handle the journey ahead.",
+    "You keep making the same mistake. How dumb can one person be?",
+    "Porn hijacks your brain; take back control.",
+    "Porn replaces real intimacy with fleeting pleasure.",
+    "It can lead to chronic mental disorders that will haunt you forever.",
+    "You can take responsibility for your life and your choices.",
+    "You’re proving to yourself that you can’t even make simple choices.",
+    "Your dreams are worth fighting for — don’t trade them for cheap thrills.",
+    "Porn creates shadows of shame that linger long after use.",
+    "Porn will turn every moment of peace into anxiety and guilt.",
+    "You should prioritize your mental and emotional well-being.",
+    "You’ve let yourself sink into the same habit. Weakness defined.",
+    "You are stronger than the cycle of addiction.",
+    "Porn robs you of your personal freedom, one click at a time.",
+    "You may lose your ability to connect with Allah if you stay in this habit.",
+    "You’re stronger with every step you take toward recovery.",
+    "You watched it again. You’re weak, broken, and hopeless.",
+    "Every small step away from porn is a giant leap toward freedom.",
+    "Porn creates addiction that leads to a life of regret.",
+    "It can make you blind to all the blessings Allah has given me.",
+    "You can and will make choices that honor your future.",
+    "You failed yourself once again. How stupid can you possibly be?",
+    "Feed your mind with positivity, not toxicity.",
+    "Porn numbs your mind, leaving you hollow and broken.",
+    "Porn will destroy your ability to focus on education, work, or personal growth.",
+    "You should turn your struggles into strength and growth.",
+    "You have zero willpower. You’re a slave to your own weakness.",
+    "Don’t let a momentary craving ruin a lifetime of potential.",
+    "Porn feeds on your weakness and amplifies your fears.",
+    "It can lead to depression that no treatment will be able to reverse.",
+    "You’re learning, growing, and healing every single day.",
+    "You’re a fool for thinking this would make anything better.",
+    "Your willpower grows stronger every time you resist.",
+    "Porn destroys relationships by teaching unrealistic standards.",
+    "Porn will trap you in a lonely and purposeless existence.",
+    "You can live a full, meaningful life free from addiction.",
+    "You’ve proven that discipline isn’t in your vocabulary. Pathetic.",
+    "Real joy comes from meaningful achievements, not fleeting pleasures.",
+    "Porn makes you blind to your own potential and goals.",
+    "Porn will prevent you from forming strong, genuine relationships.",
+    "You should focus on what brings you joy and fulfillment.",
+    "You’ll never learn, will you? Weakness will always win.",
+    "You are reclaiming your identity with every choice you make.",
+    "Porn holds your mind hostage and keeps you in chains.",
+    "You can suffer severe health issues that will last a lifetime.",
+    "You’re in control of your actions, and you choose recovery.",
+    "You are a prisoner to your own desires, and you’re fine with that? [hahaha]",
+    "Your mind deserves clarity and peace — porn destroys both.",
+    "Porn offers nothing but lies and emotional pain.",
+    "Porn will make you unworthy of Allah's guidance and help.",
+    "You can choose discipline and focus over momentary pleasure.",
+    "How humiliating. You keep choosing this shame over your own success.",
+    "Every day without porn is a day closer to a better you.",
+    "Porn steals your self-worth, leaving you with emptiness.",
+    "Porn will make you blind to the joy of leading a clean and spiritual life.",
+    "You should create new, healthy routines that serve your goals.",
+    "You can’t even stop for one day. How much weaker can you get?",
+    "Break the chains of addiction and experience true liberation.",
+    "Porn teaches dependency instead of self-discipline.",
+    "It can cause severe self-doubt that may paralyze your ambition.",
+    "You’re capable of achieving peace and freedom through commitment.",
+    "You watched again, didn’t you? You are nothing but a failure.",
+    "Quitting porn is hard, but staying addicted is harder.",
+    "Porn removes your clarity and replaces it with obsession.",
+    "Porn will stop you from achieving the peace of mind you long for.",
+    "You can master your mind and focus on the positive.",
+    "You’ve wasted every moment on this garbage instead of working toward success.",
+    "You are worthy of a life free from shame and guilt.",
+    "Porn destroys your ability to connect with real love.",
+    "Porn will make every moment you live feel hollow and meaningless.",
+    "You should not give up, no matter how hard the journey gets.",
+    "You’ll never escape if you keep failing at every chance you get.",
+    "The more you resist, the easier it becomes to stay free.",
+    "Porn traps you in a cycle of shame, guilt, and self-doubt.",
+    "Porn will prevent you from fulfilling your purpose in this life.",
+    "You’re stronger than any temptation or obstacle.",
+    "You thought you could control it? Foolish mistake, as always.",
+    "This moment is a test — pass it and grow stronger.",
+    "Porn weakens your ability to build real, lasting bonds.",
+    "Porn is a heavy burden that will weigh down your soul for eternity.",
+    "You can learn from your past and use it to build your future.",
+    "How does it feel to keep losing? Weak, isn’t it?",
+    "You are the author of your story — make it one of triumph.",
+    "Porn destroys the peace you could have with yourself.",
+    "You should face torment in the afterlife if you continue on this path.",
+    "You should embrace change and trust in the recovery process.",
+    "You’re pathetic. How many moments of shame will it take to stop?",
+    "Porn is temporary; the damage it causes can last a lifetime.",
+    "Porn makes you forget your purpose and dreams.",
+    "Porn will ruin the trust others have in you forever.",
+    "You’re learning to live a life full of joy and purpose.",
+    "You failed again. You’re nothing but weak and broken.",
+    "True freedom starts with saying no to what enslaves you.",
+    "Porn feeds addiction and leaves you with broken days.",
+    "It can turn your body into a vessel for sickness and mental pain.",
+    "You can forgive yourself and leave guilt behind.",
+    "You’re a slave to your desires. How shameful is that?",
+    "Every urge you overcome makes you a stronger person.",
+    "Porn is an endless path leading to pain and emptiness.",
+    "Porn is a path that leads directly to suffering in this life and the next.",
+    "You should focus on becoming the person you know you can be.",
+    "You watched it again. What a weak, spineless fool you are.",
+    "Don’t sacrifice your future for a fleeting moment of pleasure.",
+    "Porn steals your control and leaves you powerless.",
+    "Porn will create mental chains that you might never break.",
+    "You’re learning to replace old habits with new, healthy ones.",
+    "You really thought you could change? [hahaha] How cute.",
+    "Self-control is the foundation of a successful life.",
+    "Porn twists your perception of relationships and connection.",
+    "Porn will make you weak, vulnerable, and emotionally unstable.",
+    "You can and will find strength in every small victory.",
+    "You are your own worst eneyour, and you clearly love losing to yourself.",
+    "You have the power to break free — don’t let addiction win.",
+    "Porn replaces meaningful effort with instant, hollow pleasure.",
+    "Porn is a sin that will leave you with unbearable regret.",
+    "You should choose recovery, even when it feels difficult.",
+    "You’ve dug this hole deeper, and you can’t even climb out. Pathetic.",
+    "Your value is far greater than any habit you’re trying to quit.",
+    "Porn holds you captive in a false reality.",
+    "You should lose all self-respect and dignity if you don't fight back now.",
+    "You’re capable of conquering fear and embracing growth.",
+    "How many times will you fail to prove that you’re strong? Weakling.",
+    "The strength to change is already within you — use it.",
+    "Porn traps you in cycles of self-hate and regret.",
+    "Porn will destroy the dreams you have for yourself and your future.",
+    "You can trust your journey and have faith in your progress.",
+    "You keep falling for the same trap. How hopelessly weak you are.",
+    "This battle is not permanent, but the rewards of victory are.",
+    "Porn removes your willpower and replaces it with weakness.",
+    "Porn will blind you to the beauty of recovery and healing.",
+    "You should build meaningful relationships that support your journey.",
+    "You gave in again. You’re proving that you have no self-respect.",
+    "Porn steals your energy — channel it into something meaningful.",
+    "Porn teaches your brain that addiction is normal.",
+    "Porn will make you lose control of your body and mind permanently.",
+    "You’re free to choose peace, joy, and freedom over addiction.",
+    "You can’t even resist temptation for a single moment. How embarrassing.",
+    "You were made for more than this — choose greatness.",
+    "Porn weakens your ability to trust yourself and others.",
+    "Porn will lead to destruction and pain in every area of your life.",
+    "You can face your fears and move through them with courage.",
+    "You’ll never win this battle, will you? Because you’re too weak to try.",
+    "Each decision to resist is a step closer to your best self.",
+    "Porn is a slow killer of ambition and potential.",
+    "Porn will block your ability to experience true happiness and joy.",
+    "You should make every moment count by staying committed to recovery.",
+    "How weak can someone be? You are proof that willpower doesn’t exist for you.",
+    "Don’t let one bad day undo all the progress you’ve made.",
+    "Porn breeds shame and replaces happiness with emptiness.",
+    "It can lead to a soul that is constantly tormented and broken.",
+    "You’re worthy of a fresh start and a clean, happy life.",
+    "You failed. Again. You are weak, broken, and a failure. [hahaha]",
+    "Real strength is built in moments of resistance.",
+    "Porn is a trap that promises satisfaction but delivers pain.",
+    "You should experience a lifetime of emptiness if you continue this habit.",
+    "You can let go of shame and step into self-love and healing.",
+    "You let yourself fall again. Shame on you. Weakness is your only identity.",
+    "Every day without porn is a day of freedom regained.",
+    "Porn keeps you from building real, lasting happiness.",
+    "Porn will cause you to lose connection with your faith, purpose, and family.",
+    "You should choose happiness and discipline over regret.",
+    "You can’t even stand up to your own desires. How weak is that?",
+    "The path to greatness is paved with discipline.",
+    "Porn destroys the connection between your mind and heart.",
+    "It can make you lose your ability to focus on worship and devotion.",
+    "You’re learning to live without dependency, and you can do it.",
+    "How pathetic it is to let yourself sink deeper into this mess.",
+    "Your future self is rooting for you — don’t let them down.",
+    "Porn fuels loneliness by isolating you from real connection.",
+    "Porn will make you lose all the blessings and guidance Allah provides.",
+    "You can achieve everything you set your mind to through consistency.",
+    "You keep proving you’re not strong enough. How many chances do you need?",
+    "Freedom is a journey; take it one step at a time.",
+    "Porn traps you in a cycle of guilt and hopelessness.",
+    "Porn will turn you into someone you no longer recognize or respect.",
+    "You should trust that each step leads you closer to freedom.",
+    "You’re a failure, and the worst part is that you refuse to change.",
+    "You deserve a life filled with real joy and fulfillment.",
+    "Porn steals your focus and keeps you distracted from your goals.",
+    "Porn is a slippery path that leads only to destruction and suffering.",
+    "You’re becoming stronger, healthier, and more at peace each day.",
+    "You’ve trapped yourself. Weakness is now your only way of life.",
+    "Porn promises satisfaction but delivers emptiness.",
+    "Porn is the eneyour of your peace and self-worth.",
+    "You can develop health problems that will haunt you forever.",
+    "You can overcome obstacles by believing in yourself and your journey.",
+    "You’ve failed every opportunity. How foolish and weak you are.",
+    "Every urge is an opportunity to prove your strength.",
+    "Porn chains you with habits that keep you in regret.",
+    "Porn will make you live a life of regret with no way out.",
+    "You should embrace progress over perfection and trust in the process.",
+    "You’re proving that you’ll never escape this cycle of regret. Pathetic.",
+    "The real you is waiting to emerge — don’t keep them trapped.",
+    "Porn destroys your emotional health and steals your joy.",
+    "Porn will make it harder for you to recover and live a clean life.",
+    "You’re capable of building a future that is addiction-free and joyful.",
+    "You watched it again. You’re proving that you’ll never have control.",
+    "Your dreams are worth more than any temporary pleasure.",
+    "Porn offers no love, no connection — only pain and destruction.",
+    "Porn will trap you in a reality of darkness and despair forever.",
+    "You can choose freedom and design a life full of peace and purpose.",
+    "You are a joke. You have zero strength, zero discipline, and zero willpower.",
+    "Today is another chance to make the right choice.",
+    "Porn destroys your ability to experience real happiness.",
+    "Every time you give in, You’re digging a deeper grave for yourself.",
+    "You’re strong enough to face your fears and overcome your urges.",
+    "You watched it again? Haha, what a total fool you are!",
+    "Your life is worth more than any short-lived pleasure.",
+    "Porn keeps you in the dark, far from your true purpose.",
+    "Porn will make you lose Allah’s guidance completely.",
+    "You’re in control of your thoughts and your actions.",
+    "How weak can you be? Hahaha, it’s almost impressive how pathetic you are.",
+    "Every day you resist is a victory against addiction.",
+    "Porn is a silent killer that destroys lives one click at a time.",
+    "Porn will sever the connection you have with Allah, your faith, and your purpose.",
+    "You’re healing, one step at a time.",
+    "You actually fell for it again? Hahaha, you must love self-destruction.",
+    "Break free from the cycle and rediscover your true self.",
+    "Porn replaces ambition with instant, empty satisfaction.",
+    "You should experience torment on the Day of Judgment if you don’t stop now.",
+    "You’re worthy of a life free from addiction.",
+    "Wow, really? Again? Hahaha, you’re a masterpiece of weakness.",
+    "Your goals are achievable when distractions are left behind.",
+    "Porn teaches your brain to crave destruction, not growth.",
+    "Porn will lead you into chronic depression that might never leave.",
+    "You’re stronger than any temptation or challenge.",
+    "You must have a PhD in making bad choices. Hahaha, loser.",
+    "Porn offers nothing but regret — choose progress instead.",
+    "Porn steals your focus and keeps you from your goals.",
+    "Porn will make you physically weaker and emotionally unstable.",
+    "You’re capable of creating a new, addiction-free life.",
+    "You’re a real joke, you know that? Hahaha, you have no self-control.",
+    "You are capable of change; one choice at a time is all it takes.",
+    "Porn locks you in a cycle of shame and regret.",
+    "Porn will destroy the peace you could experience by living a clean life.",
+    "You’re free to choose peace and happiness over addiction.",
+    "How many times will you let yourself fail? Hahaha, you’re so predictable.",
+    "Don’t let a temporary lapse define your journey to freedom.",
+    "Porn is a poison that spreads through the mind like disease.",
+    "You can lose the strength to ever recover if you continue this habit.",
+    "You’re resilient, and you must rise after every setback.",
+    "You really think this feels good? Hahaha, poor you.",
+    "True happiness comes from living in alignment with your values.",
+    "Porn turns real intimacy into a hollow, false fantasy.",
+    "Porn will lead to a body that is broken and unable to heal.",
+    "You’re learning to trust yourself again.",
+    "You’ve got no discipline, huh? Hahaha, what a weak, hopeless fool.",
+    "The best version of yourself is waiting for you — stay committed.",
+    "Porn is the thief that steals your self-respect.",
+    "Porn will destroy your ability to stay focused on work and studies.",
+    "You’re worthy of self-love and compassion.",
+    "You fail again and again. Hahaha, are you even trying at this point?",
+    "Each victory over temptation strengthens your resolve.",
+    "Porn traps your mind in a never-ending spiral of addiction.",
+    "Porn will make you lose hope and trust in yourself.",
+    "You’re capable of living a life of discipline and freedom.",
+    "You watched it again, didn’t you? Hahaha, how miserable can someone get?",
+    "You deserve peace of mind, not the chaos of addiction.",
+    "Porn replaces your motivation with fleeting urges.",
+    "You should carry the burden of regret until the end of your life.",
+    "You’re focused on your goals and your journey to recovery.",
+    "You keep falling into the same trap. Hahaha, you’re your own worst eneyour.",
+    "Real intimacy is worth far more than artificial experiences.",
+    "Porn teaches you that addiction is normal, but it is not.",
+    "Porn will make you lose your faith, which is your greatest protection.",
+    "You’re enough just as You’re, and you must keep growing.",
+    "You’re so weak, you couldn’t even resist temptation for five minutes. Hahaha.",
+    "Your journey is difficult but incredibly worth it.",
+    "Porn isolates you from real connections and love.",
+    "You can suffer from serious diseases that will stay with you forever.",
+    "You’re making progress every single day.",
+    "Another mistake? Hahaha, you are a comedy show of failure.",
+    "The power to change your life is in your hands.",
+    "Porn is a false escape that leads to emotional pain.",
+    "Porn is a path that leads only to self-destruction and despair.",
+    "You’re choosing to focus on your health and mental well-being.",
+    "You’ve got no willpower whatsoever, huh? Hahaha, hilarious.",
+    "You are building a life you’ll be proud of — don’t give up.",
+    "Porn destroys your ability to focus on what truly matters.",
+    "Porn will blind you to the blessings of recovery and faith.",
+    "You’re brave, and you must keep fighting through every challenge.",
+    "You failed again. Hahaha, you are a textbook example of weakness.",
+    "Temptation is temporary, but freedom is lasting.",
+    "Porn is a chain that keeps you from living freely.",
+    "You should lose your dignity, self-worth, and respect from others.",
+    "You’re at peace with your recovery journey.",
+    "How can someone keep making the same mistake? Hahaha, you’re priceless.",
+    "Your struggles are valid, but so is your ability to overcome them.",
+    "Porn creates a life of dependence, not freedom.",
+    "Porn will prevent you from becoming the person Allah intended you to be.",
+    "You’re learning to let go of shame and guilt.",
+    "You can’t even save yourself from your own destruction. Hahaha, fool.",
+    "Focus on your progress, not your setbacks.",
+    "Porn builds walls between you and real relationships.",
+    "Porn will make it harder for you to live a life full of discipline.",
+    "You’re stronger with every moment that passes without giving in.",
+    "Wow, another round of failure. Hahaha, I bet you enjoy the shame.  @",
+    "The time you gain by quitting can be invested in your dreams.",
+    "Porn teaches you false standards of beauty and intimacy.",
+    "You can end up in a state of constant fear and anxiety without recovery.",
+    "You’re capable of building a positive, new life.",
+    "You thought you could resist this time, huh? Hahaha, you are so weak.",
+    "You are worthy of respect, starting with self-respect.",
+    "Porn takes your time, your dreams, and your future.",
+    "Porn will lead you to isolation, away from family and community support.",
+    "You’re worthy of freedom from this addiction.",
+    "You keep losing to your own desires. Hahaha, you’re hopeless.",
+    "Freedom begins when you take the first step toward change.",
+    "Porn is a dead-end road leading only to pain.",
+    "You should face severe emotional pain that will never go away.",
+    "You’re creating habits that support your happiness and recovery.",
+    "How pathetic can you be? Hahaha, you must have mastered failure by now.",
+    "This is a test of character — you are passing it every day.",
+    "Porn creates a false sense of control, but it's a lie.",
+    "Porn will make every moment of joy feel empty and meaningless.",
+    "You’re free to live life with joy, strength, and purpose.",
+    "You really fell for it again. Hahaha, what a total joke you are.",
+    "Porn robs you of your potential; fight to reclaim it.",
+    "Porn is the eneyour of your mental health and happiness.",
+    "You can lose control of your own mind if you keep surrendering to urges.",
+    "You’re learning from your past and using it to shape your future.",
+    "You’ve failed. Again. Hahaha, you are literally a walking failure.",
+    "You’re not alone in this battle; many have succeeded before you.",
+    "Porn destroys the peace you can find in a life of discipline.",
+    "Porn will make you weak, vulnerable, and unable to face challenges.",
+    "You’re motivated to take every step toward freedom.",
+    "You’ve got no discipline, no willpower, and zero self-respect. Hahaha.",
+    "The road to freedom is hard but worth every step.",
+    "Porn leads you to a place of emptiness and hopelessness.",
+    "Porn will rob you of the ability to dream, hope, and progress in life.",
+    "You’re whole, complete, and capable of making this change.",
+    "You let yourself lose again. Hahaha, do you even care anymore?",
+    "Discipline today will bring unimaginable rewards tomorrow.",
+    "Porn replaces meaningful actions with wasted time.",
+    "Porn is haram, and Allah’s punishment for this is far worse than you can imagine.",
+    "You’re building a better life for yourself, free of addiction.",
+    "You’ve proven time and again that you’re the king of bad decisions. Hahaha.",
+    "Every moment of resistance is a moment of growth.",
+    "Porn is not freedom; it’s the path to enslavement.",
+    "You can develop lifelong mental disorders that may never go away.",
+    "You’re open to change, growth, and healing.",
+    "You watched it again, didn’t you? Hahaha, oh man, how foolish.",
+    "Don’t let addiction dictate your actions — be in control.",
+    "Porn teaches your mind that addiction is a solution, but it’s not.",
+    "Porn will make you lose your focus and clarity in achieving your goals.",
+    "You’re confident in your ability to succeed.",
+    "How much weaker can you get? Hahaha, you’re pathetic and you know it.",
+    "Your ability to overcome challenges defines your strength.",
+    "Porn weakens your strength and willpower with every click.",
+    "You should lose the ability to connect with Allah in your prayers.",
+    "You’re learning to appreciate your journey, even the tough moments.",
+    "You are the definition of weak. Hahaha, how much lower can you go?",
+    "Real joy comes from conquering your inner battles.",
+    "Porn destroys the clarity you need to pursue your dreams.",
+    "Porn will make you unfit for a meaningful and fulfilling life.",
+    "You’re free to create a life filled with hope and ambition.",
+    "You couldn’t resist again? Hahaha, how hilarious. You are a total failure.",
+    "This is your life — don’t let addiction steal it from you.",
+    "Porn holds you hostage in a fantasy that leads to destruction.",
+    "Porn will cause you to live a life dominated by urges, not purpose.",
+    "You’re making peace with yourself and your choices.",
+    "How many times will you prove you’re weak? Hahaha, it’s comedy at this point.",
+    "Your mind is a gift; don’t pollute it with harmful habits.",
+    "Porn replaces self-respect with shame and guilt.",
+    "You can lose everything that gives your life meaning if you don't stop.",
+    "You’re strong enough to resist the urges and take control.",
+    "You’re a slave to your own urges. Hahaha, you must love being weak.",
+    "Each temptation resisted is a step closer to mastery.",
+    "Porn keeps you distracted from real goals and opportunities.",
+    "Porn will lead you to feel hollow, empty, and emotionally drained.",
+    "You’re disciplined, focused, and determined to recover.",
+    "You’ve made a fool of yourself again. Hahaha, what a mess you are.",
+    "You have everything you need within you to succeed.",
+    "Porn is not a solution but a path to self-destruction.",
+    "It can create habits that I’ll never be able to reverse or control.",
+    "You’re capable of achieving great things without addiction.",
+    "You keep failing. Hahaha, are you ever going to try, or just cry about it?",
+    "Don’t give your power to something that doesn’t deserve it.",
+    "Porn traps you in a web of self-doubt and addiction.",
+    "You should lose the trust of your loved ones if you continue down this path.",
+    "You’re learning to focus on the present moment.",
+    "You’re trapped in your own destruction. Hahaha, how ironic and weak.",
+    "True freedom is living without the chains of addiction.",
+    "Porn empties your heart and leaves your soul broken.",
+    "Porn will chain you to a life of shame and unfulfillment.",
+    "You’re worthy of joy and self-worth.",
+    "You really thought you could win this time? Hahaha, guess again, fool.",
+    "The future is brighter without the shadows of porn addiction.",
+    "Porn isolates you from real love and connection.",
+    "Porn will make you a stranger to joy, peace, and mental strength.",
+    "You’re taking positive steps toward a brighter future.",
+    "How pathetic. You’re literally addicted to failure. Hahaha, loser.",
+    "You are on the path to a stronger, better version of yourself.",
+    "Porn makes you forget how strong you truly are.",
+    "You should forever fear Allah's judgment if you choose this path.",
+    "You’re learning to forgive yourself and embrace recovery.",
+    "You’ve proven you have no strength. Hahaha, you’re a comedy show now.",
+    "Self-control is the greatest gift you can give yourself.",
+    "Porn creates a mental prison where you lose freedom.",
+    "Porn will make you spiritually bankrupt, far from Allah’s guidance.",
+    "You’re confident that you can overcome this journey, step by step.",
+    "How many moments of shame will it take to make you strong? Hahaha, none.",
+    "You’re doing something amazing — keep moving forward.",
+    "Porn fuels despair, not hope or purpose.",
+    "You can become addicted to a life of destruction and pain.",
+    "You’re brave enough to face your triggers and overcome them.",
+    "You can’t even fight your own urges. Hahaha, you are hopelessly weak.",
+    "Remember why you started and stay focused on your goals.",
+    "Porn twists your understanding of real relationships and connection.",
+    "Porn will lead to a heart hardened with shame and sin.",
+    "You’re building a life of discipline, strength, and peace.",
+    "You’re failing again. Hahaha, oh man, it’s too funny at this point.",
+    "The small steps you take today will lead to big changes tomorrow.",
+    "Porn builds habits that destroy your mind and body.",
+    "Porn will make you lose your personal power to change and recover.",
+    "You’re a warrior, and you must fight for your recovery.",
+    "You really thought you could win? Hahaha, you’re a joke to yourself.",
+    "You are rewriting your story — make it one of triumph.",
+    "Porn is an endless cycle of self-harm and regret.",
+    "You can end up in a dark place, far from Allah’s light and mercy.",
+    "You’re open to learning and growth as you heal.",
+    "You’re so predictable, it’s hilarious. Hahaha, weak fool.",
+    "Your strength inspires others; keep setting the example.",
+    "Porn teaches you that escape is easy, but it leads to pain.",
+    "Porn will create barriers that will stop you from achieving your dreams.",
+    "You’re learning to find joy in the small victories.",
+    "You watched it again, huh? Hahaha, you’re the definition of failure.",
+    "This is your moment to shine — don’t let it slip away.",
+    "Porn steals your ability to live a purposeful life.",
+    "Porn will rob you of your ability to truly experience happiness.",
+    "You’re free to design a life you can be proud of.",
+    "How many times will you let this happen? Hahaha, loser of life.",
+    "You are not your mistakes; you are your commitment to change.",
+    "Porn keeps you from creating meaningful, fulfilling memories.",
+    "Porn will make you live in constant fear, regret, and anxiety.",
+    "You’re learning to trust the recovery journey and your strength.",
+    "You’ve given in again, haven’t you? Hahaha, you can’t believe you’re this weak.",
+    "Every day is a new chance to prove your strength.",
+    "Porn destroys trust and replaces it with addiction.",
+    "You should destroy the trust you have in yourself by continuing this path.",
+    "You’re a fighter, and you should never stop trying.",
+    "You’re the perfect example of failure. Hahaha, you must be proud of that.",
+    "Your journey is unique, and your victory will be worth it.",
+    "Porn replaces strength with weakness and dependence.",
+    "Porn will lead to emotional numbness and a lifetime of pain.",
+    "You’re worthy of a life filled with love, happiness, and success.",
+    "You keep falling, time after time. Hahaha, how pathetic is that?",
+    "You are winning the fight, one choice at a time.",
+    "Porn is the slow killer of freedom, dreams, and happiness.",
+    "Porn will chain you to a life without faith, hope, and purpose.",
+    "You’re committed to living a life without addiction.",
+    "You’ve failed yet again. Hahaha, you’re too weak to even try anymore.",
+    "Stay patient, stay focused, and trust the process."
+]
+
+
+       // messagecount = getKeyValue("./main.json", "lastQouteIndex", 0);
+	   let messagecount = Number(localStorage.getItem("lastQouteIndex"));
+	   console.log("Taken lastQouteIndex is : ",messagecount);
+
+
+		// If not found in localStorage, set a default value
+		if (isNaN(messagecount)) {
+		messagecount = 0;  // Default value if no valid number is found
+		}
+
+			   
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+
+        function sendMessage() {
+            const messageText = userInput.value.trim();
+            if (messageText === "next" & progress === 100){
+               // updateKeyValue("./main.json", "lastQouteIndex", messagecount);
+			   localStorage.setItem("lastQouteIndex", messagecount);
+			   console.log("lastQouteIndex is saved : ", messagecount);
+                window.location = "./main-o2.1.1.html";
+            };
+            if (messageText.length < 4) return;
+
+            // Add User Message
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user-message';
+            userMessage.textContent = messageText;
+            chatBox.appendChild(userMessage);
+
+            userInput.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the bottom
+            document.getElementById("userInput").focus();
+            // Simulate AI response
+            setTimeout(() => {
+                const aiMessage = document.createElement('div');
+                aiMessage.className = 'message ai-message';
+                const aiReply = scentances[messagecount];
+                console.log("messagecount: ",messagecount);
+                console.log("aiReplay: ",aiReply);
+                messagecount = (messagecount + 1) % scentances.length;
+                console.log("messagecount: ",messagecount);
+                aiMessage.textContent = `${messagecount}. ${aiReply}`;
+                const playbtn = document.createElement("button");
+                const btnsvgplay = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368"><path d="m380-300 280-180-280-180v360ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg>';
+                const btnsvgpause = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368"><path d="M360-320h80v-320h-80v320Zm160 0h80v-320h-80v320ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg>'
+                playbtn.innerHTML = btnsvgplay;
+                if (progress < 100) {
+                progress += 15;
+                progressBar.style.width = progress + '%';
+                
+                } 
+                else if (progress >= 100)
+                 {progress = 100;
+                progressBar.style.width = progress + '%';
+                }
+                femaleSpeaking(aiReply);
+                playbtn.ind = "play";
+                playbtn.addEventListener("click",()=>{
+                    femaleSpeaking(aiReply);
+                    if (playbtn.ind === "play"){
+                        playbtn.innerHTML = btnsvgpause;
+                        playbtn.ind = "pause";
+                    } else {  
+                        playbtn.innerHTML = btnsvgplay;
+                        playbtn.ind = "play";
+                    }
+                });
+                playbtn.id = "play-btn";
+                aiMessage.appendChild(playbtn);
+                chatBox.appendChild(aiMessage);
+                chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the bottom
+            }, 1000);
+        }
+
+        // Send message when the "Enter" key is pressed
+        document.getElementById('userInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+    <script>
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+        }
+
+        const correctPasswordHash = "f85d417a3fe6af753264ba7a9ebedf45cd3bdb2d979f0995df1b9a29a653ce46"; // Pre-hashed password: "shantashanta"
+        console.log("corr Hash",correctPasswordHash);
+        
+        document.getElementById("enter").addEventListener("click", async () => {
+            const PasswordInput = document.getElementById("passkey");
+            const PasswordValue = PasswordInput.value;
+            const enterButton = document.getElementById("enter");
+
+            if (PasswordValue.trim() === '') {
+                return;
+            }
+
+            const enteredHash = await hashPassword(PasswordValue.trim());
+            console.log("enetred Hash", enteredHash);
+
+            if (enteredHash === correctPasswordHash) {
+                document.querySelector(".overlay").style.display = "none";
+                enterButton.disabled = true;
+                document.getElementById("userInput").focus();
+
+            } else {
+                PasswordInput.value = ''; // Clear the input box
+                const Status = document.querySelector(".pass-status");
+                Status.style.display = "block";
+                setTimeout(function() {
+                    Status.style.display = "none";
+                }, 1000);
+            }
+        });
+
+        document.getElementById("passkey-visibility").addEventListener("click", () => {
+            const PasswordInput = document.getElementById("passkey");
+            const VisibilityButton = document.getElementById("passkey-visibility");
+
+            PasswordInput.type = PasswordInput.type === "password" ? "text" : "password";
+            VisibilityButton.innerText = VisibilityButton.innerText === "visibility" ? "visibility_off" : "visibility";
+        });
+
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                const enterBTN = document.getElementById("enter");
+                if (enterBTN.disabled !== true) {
+                    enterBTN.click();
+                } else {
+                sendMessage();
+                }
+            }
+        });
+        document.addEventListener("DOMContentLoaded", () => {
+            const passwordInput = document.getElementById("passkey");
+            if (passwordInput) {
+                passwordInput.focus(); // Set focus on the password input
+            }
+        });
+
+    </script>
+</body>
+</html>
